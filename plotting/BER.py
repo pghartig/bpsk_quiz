@@ -13,7 +13,7 @@ def plot_bit_error_rates(SNRs_dB, BER_list, names=[], analytic_ser=True):
     """
     fig = plt.figure()
     for idx, name in enumerate(names):
-        plt.plot(SNRs_dB, BER_list[idx], label=f'{name}')
+        plt.plot(SNRs_dB, BER_list[idx], label=f'BER for doppler ppm {name}')
     if analytic_ser==True:
         SNRs_dB = np.linspace(0, 10, 500)
         snrs = np.power(10, SNRs_dB / 10)

@@ -21,7 +21,7 @@ def fine_tracking(input, oversample, fs):
     loop_frequency = 0
     loop_phase = 0
     frequency_step = .0005
-    phase_step = .001
+    phase_step = .0005
     phases = np.zeros(len(input))
     frequencies = np.zeros(len(input))
     phase_errors = np.zeros(len(input))
