@@ -24,8 +24,9 @@ for ppm in ppms:
         noise_component_power = np.sqrt(1/(oversample*2*ebno))
         rx_signal = 1j*np.zeros(oversample*len(nrz_steam))
         # Use random doppler in ppm tolerance range
-        ppm_error = ppm/1e6
-        doppler = f_c*ppm_error
+        # ppm_error = np.random.uniform(-30, 30)
+        ppm_error = ppm
+        doppler = f_c*ppm_error/1e6
         phase_offset = np.random.uniform(-np.pi, np.pi)
         # Allowed to assume timing is preserved througout.
         timing_offset = 0
@@ -53,10 +54,10 @@ for ppm in ppms:
         error_plotting = True
         if error_plotting == True:
             plt.figure()
-            plt.title(f"Constellation. ebno: {ebno_db} db, doppler: {ppm_error}")
+            plt.title(f"Constellation. ebno: {ebno_db} db, doppler: {ppm_error} ppm")
             # Note these constellations will look bad if convergence isn't very fast.
             plt.scatter(fine_corrected.real, fine_corrected.imag)
-            fig_name = f"ebno_{ebno_db}_dop_{ppm_error}_constellation"
+            fig_name = f"ebno_{ebno_db}_dop_{ppm_error}_ppm_constellation"
             plt.savefig("../results/"+fig_name+".png")
             plt.figure()
             plt.title(f"Frequency Error: {doppler - fine_freq[-1] - coarse_offset}")
