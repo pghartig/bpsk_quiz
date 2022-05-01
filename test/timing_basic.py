@@ -1,4 +1,5 @@
-from dsp.carrier_recover import coarse_correction, fine_tracking, timing_recover
+from dsp.carrier_recover import coarse_correction, fine_tracking
+from dsp.timing_recover import timing_recover, delay_filter
 from commpy import rrcosfilter
 from plotting.BER import plot_bit_error_rates
 import matplotlib.pyplot as plt
@@ -26,27 +27,25 @@ for ebno_db in ebnos_db:
     # Use random doppler in ppm tolerance range
     ppm_error = np.random.uniform(-30, 30)/1e6
     # timing_error = np.random.uniform(0, 4)
-    timing_error = 2
-    delay = np.sinc(np.arange(-delay_filter_length//2, delay_filter_length//2) - timing_error)
-    delay *= np.hamming(delay_filter_length)
-    delay /= np.sum(delay)
+    timing_error = .5
+    delay = delay_filter(timing_error)
     doppler = f_c*ppm_error
     phase_offset = np.random.uniform(-np.pi, np.pi)
-    symbol_offset = 0
+    symbol_offset = 3
     rx_signal[symbol_offset::oversample] = nrz_steam
     rx_signal = np.convolve(rx_signal, rrc, "same")
     rx_signal_delayed = np.convolve(rx_signal, delay, 'same') # Add timing error
     noise = noise_component_power*np.random.randn(len(rx_signal)) + 1j * noise_component_power*np.random.randn(len(rx_signal))
-    rx_signal_delayed += noise
-    rx_signal_delayed *= np.exp(1j*(2*np.pi*doppler*np.arange(len(rx_signal))/fs_rx + phase_offset))
+    # rx_signal_delayed += noise
+    # rx_signal_delayed *= np.exp(1j*(2*np.pi*doppler*np.arange(len(rx_signal))/fs_rx + phase_offset))
     # Filter out to known ppm error before coarse estimate (lots of options for a low pass filter here, nothing fancy)
     filtered = np.convolve(rx_signal_delayed[:2000]**2, firwin(21, cutoff=f_c*35/1e6, fs=fs_rx), "same")
     coarse_offset = coarse_correction(filtered, fs_rx)
-    frequency_corrected = rx_signal_delayed*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal_delayed))/fs_rx)
+    # frequency_corrected = rx_signal_delayed*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal_delayed))/fs_rx)
     # Would timing/matched filter would need to be acquired before a full carrier recover (prompt assumes timing).
-    timing_error_estimates = timing_recover(frequency_corrected, oversample)
-    filtered_corrected = np.convolve(frequency_corrected, np.flip(rrc), "same")
-    timing_offset = 0
+    filtered_corrected = np.convolve(rx_signal_delayed, np.flip(rrc), "same")
+    timing_error_estimates = timing_recover(filtered_corrected, oversample)
+    timing_offset = 3
     timed_corrected = filtered_corrected[timing_offset::oversample]
     fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)
     check = filtered_corrected*np.exp(-1j*2*np.pi*fine_freq[-1]*np.arange(len(rx_signal))/fs_rx)

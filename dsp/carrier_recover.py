@@ -2,21 +2,6 @@ import numpy as np
 from scipy.signal import firwin
 import matplotlib.pyplot as plt
 
-def timing_recover(signal_chunk, oversample):
-    """
-    TODO Would begin with something basic like an early-late algorithm to estimate the derivative
-    of the sample point.
-    :param signal_chunk:
-    :return:
-    """
-    filter = np.asarray([-1, -1, -1, 0, 1, 1, 1.0])
-    filter /= np.sum(np.abs(filter))
-    for symbol_idx in range(int(len(signal_chunk)/oversample)):
-        sample = signal_chunk[symbol_idx*oversample]
-        error = np.sum(filter * signal_chunk[symbol_idx-oversample//2: symbol_idx + oversample//2])
-        error *= sample
-        # Adjust estimated offset using error and step size
-    return None
 
 def fine_tracking(input, oversample, fs):
     """
