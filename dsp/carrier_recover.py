@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.signal import firwin
+import matplotlib.pyplot as plt
 
 def timing_recover(signal_chunk):
     """
@@ -8,6 +9,8 @@ def timing_recover(signal_chunk):
     :param signal_chunk:
     :return:
     """
+    filter = np.asarray([-1, -1, -1, 0, 1, 1, 1.0])
+    filter /= np.sum(np.abs(filter))
     return None
 
 def fine_tracking(input, oversample, fs):

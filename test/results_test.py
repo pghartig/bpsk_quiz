@@ -43,8 +43,6 @@ for ppm in ppms:
         filtered_corrected = np.convolve(frequency_corrected, np.flip(rrc), "same")
         timed_corrected = filtered_corrected[timing_offset::oversample]
         fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)
-        check = filtered_corrected*np.exp(-1j*2*np.pi*fine_freq[-1]*np.arange(len(rx_signal))/fs_rx)
-        check_timed = check[timing_offset::oversample]
         # At this point the tracking as assumed to lock and subsequent symbols are considered for BER.
         detected_nrz = -1*np.logical_not(fine_corrected > 0) + 1*(fine_corrected > 0)
         error_rate = np.sum(detected_nrz != nrz_steam)/num_bits

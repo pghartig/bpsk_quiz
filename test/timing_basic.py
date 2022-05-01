@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from scipy.signal import firwin
 import numpy as np
 
-num_bits = 100000
+# num_bits = 100000
+num_bits = 1000
 alpha = .35
 Ts = 1/1e6
 fs_rx = 4e6
@@ -25,7 +26,7 @@ for ebno_db in ebnos_db:
     # Use random doppler in ppm tolerance range
     ppm_error = np.random.uniform(-30, 30)/1e6
     # timing_error = np.random.uniform(0, 4)
-    timing_error = 0
+    timing_error = 2
     delay = np.sinc(np.arange(-delay_filter_length//2, delay_filter_length//2) - timing_error)
     delay *= np.hamming(delay_filter_length)
     delay /= np.sum(delay)
@@ -34,8 +35,7 @@ for ebno_db in ebnos_db:
     symbol_offset = 0
     rx_signal[symbol_offset::oversample] = nrz_steam
     rx_signal = np.convolve(rx_signal, rrc, "same")
-    # rx_signal_delayed = np.convolve(rx_signal, delay, 'same') # Add timing error
-    rx_signal_delayed = rx_signal
+    rx_signal_delayed = np.convolve(rx_signal, delay, 'same') # Add timing error
     noise = noise_component_power*np.random.randn(len(rx_signal)) + 1j * noise_component_power*np.random.randn(len(rx_signal))
     rx_signal_delayed += noise
     rx_signal_delayed *= np.exp(1j*(2*np.pi*doppler*np.arange(len(rx_signal))/fs_rx + phase_offset))
@@ -44,9 +44,9 @@ for ebno_db in ebnos_db:
     coarse_offset = coarse_correction(filtered, fs_rx)
     frequency_corrected = rx_signal_delayed*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal_delayed))/fs_rx)
     # Would timing/matched filter would need to be acquired before a full carrier recover (prompt assumes timing).
-    # timing_error_estimates = timing_recover(frequency_corrected)
+    timing_error_estimates = timing_recover(frequency_corrected)
     filtered_corrected = np.convolve(frequency_corrected, np.flip(rrc), "same")
-    timing_offset = 2
+    timing_offset = 0
     timed_corrected = filtered_corrected[timing_offset::oversample]
     fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)
     check = filtered_corrected*np.exp(-1j*2*np.pi*fine_freq[-1]*np.arange(len(rx_signal))/fs_rx)
