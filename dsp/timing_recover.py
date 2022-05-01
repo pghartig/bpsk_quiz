@@ -22,7 +22,7 @@ def timing_recover(signal_chunk, oversample):
     # length_side = oversample - 2
     # early_late_filter = np.asarray([-1, -1, 0, 1, 1.0])
     early_late_filter /= np.sum(np.abs(early_late_filter))
-    timing_step = .001    # in units of samples
+    timing_step = .01    # in units of samples
     delay_estimate = 0
     estimates = []
     for symbol_idx in range(int(len(signal_chunk)/oversample - 2)):
@@ -31,7 +31,8 @@ def timing_recover(signal_chunk, oversample):
         # Could also add phase estimate into this stage for increased efficiency.
         samples_mult = signal_chunk[sample_idx-length_side: sample_idx + length_side + 1]
         delayed_samples = get_delayed_samples(samples_mult, -delay_estimate)
-        error = np.sign(np.sum(early_late_filter * delayed_samples))
+        # error = np.sign(np.sum(early_late_filter * delayed_samples))
+        error = np.sum(early_late_filter * delayed_samples)
         error *= signal_chunk[sample_idx]
         delay_estimate += timing_step*error
         estimates.append(delay_estimate)

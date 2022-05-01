@@ -22,9 +22,9 @@ rrc /= np.linalg.norm(rrc)
 rx_signal = 1j*np.zeros(oversample*len(nrz_steam))
 # Use random doppler in ppm tolerance range
 ppm_error = np.random.uniform(-30, 30)/1e6
-timing_error = np.random.uniform(-oversample, oversample)
-timing_error = 2.5
-# timing_error = 0
+# timing_error = np.random.uniform(-oversample, oversample)
+# timing_error = 2.5
+timing_error = 0
 delay = delay_filter(timing_error, delay_filter_length=121)
 doppler = f_c*ppm_error
 phase_offset = np.random.uniform(-np.pi, np.pi)
