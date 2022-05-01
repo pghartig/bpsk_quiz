@@ -23,9 +23,9 @@ rx_signal = 1j*np.zeros(oversample*len(nrz_steam))
 # Use random doppler in ppm tolerance range
 ppm_error = np.random.uniform(-30, 30)/1e6
 # timing_error = np.random.uniform(-oversample, oversample)
-# timing_error = 2.5
-timing_error = 0
-delay = delay_filter(timing_error, delay_filter_length=121)
+timing_error = 2.5
+# timing_error = 0
+delay = delay_filter(timing_error)
 doppler = f_c*ppm_error
 phase_offset = np.random.uniform(-np.pi, np.pi)
 symbol_offset = 0
@@ -34,8 +34,8 @@ rx_signal = np.convolve(rx_signal, rrc, "same")
 rx_signal_delayed = np.convolve(rx_signal, delay, 'same') # Add timing error
 filtered_corrected = np.convolve(rx_signal_delayed, np.flip(rrc), "same")
 delay_estimate, timing_error_estimates = timing_recover(filtered_corrected, oversample)
-timing_correction = delay_filter(delay_estimate - oversample, delay_filter_length=121)
-timed_corrected = np.convolve(filtered_corrected, np.flip(timing_correction), "same")
+timing_correction = delay_filter(-delay_estimate)
+timed_corrected = np.convolve(filtered_corrected, timing_correction, "same")
 timed_corrected = timed_corrected[0::oversample]
 fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)
 # At this point the tracking as assumed to lock and subsequent symbols are considered for BER.

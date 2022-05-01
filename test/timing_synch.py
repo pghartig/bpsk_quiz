@@ -36,7 +36,7 @@ for ebno_db in ebnos_db:
     noise = noise_component_power*np.random.randn(len(rx_signal)) + 1j * noise_component_power*np.random.randn(len(rx_signal))
     rx_signal += noise
     rx_signal *= np.exp(1j*(2*np.pi*doppler*np.arange(len(rx_signal))/fs_rx + phase_offset))
-    delay = delay_filter(timing_error, delay_filter_length=121)
+    delay = delay_filter(timing_error)
     rx_signal = np.convolve(rx_signal, delay, 'same')
     # Filter out to known ppm error before coarse estimate (lots options for a low pass filter here, nothing fancy)
     filtered = np.convolve(rx_signal[:2000]**2, firwin(21, cutoff=f_c*35/1e6, fs=fs_rx), "same")
@@ -44,8 +44,8 @@ for ebno_db in ebnos_db:
     frequency_corrected = rx_signal*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal))/fs_rx)
     filtered_corrected = np.convolve(frequency_corrected, np.flip(rrc), "same")
     delay_estimate, timing_error_estimates = timing_recover(filtered_corrected, oversample)
-    # timing_correction = delay_filter(timing_error, delay_filter_length=121)
-    timed_corrected = np.convolve(filtered_corrected, np.flip(delay), "same")
+    timing_correction = delay_filter(-delay_estimate)
+    timed_corrected = np.convolve(filtered_corrected, timing_correction, "same")
     timed_corrected = timed_corrected[0::oversample]
     # Might want to only do this on timing synched
     fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)

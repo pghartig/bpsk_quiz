@@ -2,16 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def delay_filter(delay, delay_filter_length=11):
+    delay -= 1 #Assume using "same" in convolution
     delay = np.sinc(np.arange(-delay_filter_length//2, delay_filter_length//2) - delay)
     delay *= np.hamming(delay_filter_length)
     delay /= np.sum(delay)
     return delay
 
-def get_delay_filter_coeffiecients():
-    return None
-
 def get_delayed_samples(samples, delay):
-    delay -= 1
     d_filter = delay_filter(delay, delay_filter_length=len(samples))
     delayed_samples = np.convolve(samples, d_filter, "same")
     return delayed_samples
@@ -22,7 +19,7 @@ def timing_recover(signal_chunk, oversample):
     # length_side = oversample - 2
     # early_late_filter = np.asarray([-1, -1, 0, 1, 1.0])
     early_late_filter /= np.sum(np.abs(early_late_filter))
-    timing_step = .01    # in units of samples
+    timing_step = .001    # in units of samples
     delay_estimate = 0
     estimates = []
     for symbol_idx in range(int(len(signal_chunk)/oversample - 2)):
