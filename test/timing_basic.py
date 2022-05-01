@@ -44,7 +44,7 @@ for ebno_db in ebnos_db:
     coarse_offset = coarse_correction(filtered, fs_rx)
     frequency_corrected = rx_signal_delayed*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal_delayed))/fs_rx)
     # Would timing/matched filter would need to be acquired before a full carrier recover (prompt assumes timing).
-    timing_error_estimates = timing_recover(frequency_corrected)
+    timing_error_estimates = timing_recover(frequency_corrected, oversample)
     filtered_corrected = np.convolve(frequency_corrected, np.flip(rrc), "same")
     timing_offset = 0
     timed_corrected = filtered_corrected[timing_offset::oversample]
