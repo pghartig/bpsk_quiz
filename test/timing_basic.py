@@ -1,13 +1,13 @@
 from dsp.carrier_recover import coarse_correction, fine_tracking
-from dsp.timing_recover import timing_recover, delay_filter
+from dsp.timing_recover import timing_recover, delay_filter, get_delayed_samples
 from commpy import rrcosfilter
 from plotting.BER import plot_bit_error_rates
 import matplotlib.pyplot as plt
 from scipy.signal import firwin
 import numpy as np
 
-# num_bits = 100000
-num_bits = 1000
+num_bits = 10000
+# num_bits = 1000
 alpha = .35
 Ts = 1/1e6
 fs_rx = 4e6
@@ -18,7 +18,6 @@ nrz_steam = -np.random.randint(0, 2, num_bits)*2 + 1
 BER = []
 rrc = rrcosfilter(4, alpha, Ts, fs_rx)[1][1:]
 rrc /= np.linalg.norm(rrc)
-delay_filter_length = 31
 
 for ebno_db in ebnos_db:
     ebno = np.power(10, ebno_db/10)
@@ -42,11 +41,11 @@ for ebno_db in ebnos_db:
     filtered = np.convolve(rx_signal_delayed[:2000]**2, firwin(21, cutoff=f_c*35/1e6, fs=fs_rx), "same")
     coarse_offset = coarse_correction(filtered, fs_rx)
     # frequency_corrected = rx_signal_delayed*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal_delayed))/fs_rx)
-    # Would timing/matched filter would need to be acquired before a full carrier recover (prompt assumes timing).
     filtered_corrected = np.convolve(rx_signal_delayed, np.flip(rrc), "same")
-    timing_error_estimates = timing_recover(filtered_corrected, oversample)
+    delay_estimate, timing_error_estimates = timing_recover(filtered_corrected, oversample)
     timing_offset = 3
-    timed_corrected = filtered_corrected[timing_offset::oversample]
+    get_delayed_samples(filtered_corrected, -delay_estimate)
+    timed_corrected = filtered_corrected[0::oversample]
     fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)
     check = filtered_corrected*np.exp(-1j*2*np.pi*fine_freq[-1]*np.arange(len(rx_signal))/fs_rx)
     check_timed = check[timing_offset::oversample]

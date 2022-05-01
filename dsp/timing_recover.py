@@ -18,17 +18,16 @@ def get_delayed_samples(samples, delay):
 def timing_recover(signal_chunk, oversample):
     length_side = oversample - 1
     early_late_filter = np.asarray([1, 1, 1, 0, 1, 1, 1.0])
-    # filter = np.asarray([1, 1, 0, -1, -1.0])
     early_late_filter /= np.sum(np.abs(early_late_filter))
-    timing_step = .05    # in units of samples
+    timing_step = .01    # in units of samples
     delay_estimate = 0
     estimtes = []
-    for symbol_idx in range(int(len(signal_chunk)/oversample)):
+    for symbol_idx in range(int(len(signal_chunk)/oversample - 1)):
         # TODO this could be implemented more efficiently using a Farrow structure
         sample_idx = oversample - 1 + symbol_idx*oversample
-        delayed_samples = get_delayed_samples(signal_chunk[sample_idx-length_side: sample_idx + length_side + 1], delay_estimate)
+        delayed_samples = get_delayed_samples(signal_chunk[sample_idx-length_side: sample_idx + length_side + 1], -delay_estimate)
         error = np.sign(np.sum(early_late_filter * delayed_samples))
-        error *= np.sign(signal_chunk[sample_idx])
+        error *= signal_chunk[sample_idx]
         delay_estimate += timing_step*error
         estimtes.append(delay_estimate)
         # Adjust estimated offset using error and step size
