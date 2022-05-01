@@ -1,4 +1,4 @@
-from dsp.carrier_recover import coarse_correction, fine_tracking, timing_recover
+from dsp.carrier_recover import coarse_correction, fine_tracking
 from commpy import rrcosfilter
 from plotting.BER import plot_bit_error_rates
 import matplotlib.pyplot as plt
@@ -51,8 +51,8 @@ for ebno_db in ebnos_db:
     detected_nrz = -1*np.logical_not(fine_corrected > 0) + 1*(fine_corrected > 0)
     error_rate_flipped = np.sum(detected_nrz != nrz_steam)/num_bits
     print(f"Realtime flipped: {error_rate_flipped}")
-    error_plotting = False
-    if error_plotting == True:
+    error_plotting = True
+    if error_plotting:
         plt.figure()
         plt.title(f"Realtime corrected BER: {error_rate}")
         # Note these constellations will look bad if convergence isn't very fast.
