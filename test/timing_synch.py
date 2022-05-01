@@ -27,7 +27,7 @@ for ebno_db in ebnos_db:
     ppm_error = np.random.uniform(-30, 30)/1e6
     doppler = f_c*ppm_error
     # timing_error = np.random.uniform(-oversample, oversample)
-    timing_error = 2.8967
+    timing_error = -.75
     # timing_error = 0
     phase_offset = np.random.uniform(-np.pi, np.pi)
     # Allowed to assume timing is preserved througout.
