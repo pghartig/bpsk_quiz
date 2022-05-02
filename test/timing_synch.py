@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import firwin
 import numpy as np
 
-num_bits = 50000
+num_bits = 100000
 alpha = .35
 Ts = 1/1e6
 fs_rx = 4e6
