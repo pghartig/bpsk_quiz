@@ -16,10 +16,10 @@ def get_delayed_samples(samples, delay):
 def timing_recover(signal_chunk, oversample):
     length_side = oversample - 1
     early_late_filter = np.asarray([-1, -1, -1, 0, 1, 1, 1.0])
+    # early_late_filter = np.asarray([-1, -1, -1, 0, 1, 1, 1.0]) #try complex conjugate here
     # length_side = oversample - 2
-    # early_late_filter = np.asarray([-1, -1, 0, 1, 1.0])
     early_late_filter /= np.sum(np.abs(early_late_filter))
-    timing_step = .01    # in units of samples
+    timing_step = .005    # in units of samples
     delay_estimate = 0
     estimates = []
     check = []
@@ -31,10 +31,11 @@ def timing_recover(signal_chunk, oversample):
             # Could also add phase estimate into this stage for increased efficiency.
             samples_mult = signal_chunk[sample_idx-length_side: sample_idx + length_side + 1]
             delayed_samples = get_delayed_samples(samples_mult, -delay_estimate)
-            # error = np.sign(np.sum(early_late_filter * delayed_samples))
-            error = np.sum(early_late_filter * delayed_samples)
+            left_samples = np.sum(delayed_samples[:3])
+            right_samples = np.sum(delayed_samples[4:])
+            error = np.sum(np.conjugate(right_samples))-np.sum(np.conjugate(left_samples))
             check.append(error)
             error *= signal_chunk[sample_idx]
-            delay_estimate += timing_step*error
+            delay_estimate += timing_step*error.real
             estimates.append(delay_estimate)
     return delay_estimate, np.asarray(estimates)

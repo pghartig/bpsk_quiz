@@ -42,7 +42,7 @@ for ebno_db in ebnos_db:
     coarse_offset = coarse_correction(filtered, fs_rx)
     frequency_corrected = rx_signal*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal))/fs_rx)
     delay_estimate, timing_error_estimates = timing_recover(frequency_corrected, oversample)
-    timing_correction = delay_filter(-timing_error)
+    timing_correction = delay_filter(-delay_estimate)
     timed_corrected = np.convolve(frequency_corrected, timing_correction, "same")
     filtered_corrected = np.convolve(timed_corrected, np.flip(rrc), "same")
     timed_corrected = filtered_corrected[0::oversample]
