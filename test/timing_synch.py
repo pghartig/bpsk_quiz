@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import firwin
 import numpy as np
 
-num_bits = 500000
+num_bits = 50000
 alpha = .35
 Ts = 1/1e6
 fs_rx = 4e6
@@ -25,7 +25,7 @@ for ebno_db in ebnos_db:
     # Use random doppler in ppm tolerance range
     ppm_error = np.random.uniform(-30, 30)/1e6
     doppler = f_c*ppm_error
-    # timing_error = np.random.uniform(-oversample, oversample)
+    # timing_error = np.random.uniform(-oversample//2, oversample//2)
     timing_error = -.75
     # timing_error = 0
     phase_offset = np.random.uniform(-np.pi, np.pi)
@@ -45,7 +45,7 @@ for ebno_db in ebnos_db:
     timing_correction = delay_filter(-timing_error)
     timed_corrected = np.convolve(frequency_corrected, timing_correction, "same")
     filtered_corrected = np.convolve(timed_corrected, np.flip(rrc), "same")
-    timed_corrected = timed_corrected[0::oversample]
+    timed_corrected = filtered_corrected[0::oversample]
     # Might want to only do this on timing synched
     fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)
     # At this point the tracking as assumed to lock and subsequent symbols are considered for BER.
