@@ -42,9 +42,10 @@ for ebno_db in ebnos_db:
     filtered = np.convolve(rx_signal[:2000]**2, firwin(21, cutoff=f_c*35/1e6, fs=fs_rx), "same")
     coarse_offset = coarse_correction(filtered, fs_rx)
     frequency_corrected = rx_signal*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal))/fs_rx)
+    # frequency_corrected = rx_signal
     filtered_corrected = np.convolve(frequency_corrected, np.flip(rrc), "same")
     delay_estimate, timing_error_estimates = timing_recover(filtered_corrected, oversample)
-    timing_correction = delay_filter(-delay_estimate)
+    timing_correction = delay_filter(-timing_error)
     timed_corrected = np.convolve(filtered_corrected, timing_correction, "same")
     timed_corrected = timed_corrected[0::oversample]
     # Might want to only do this on timing synched
