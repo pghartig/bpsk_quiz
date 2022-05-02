@@ -6,13 +6,12 @@ import matplotlib.pyplot as plt
 from scipy.signal import firwin
 import numpy as np
 
-num_bits = 50000
+num_bits = 500000
 alpha = .35
 Ts = 1/1e6
 fs_rx = 4e6
 f_c = 2e9
 ebnos_db = np.linspace(0, 10, 2)
-ebnos_db = np.linspace(10, 10, 2)
 oversample = 4
 nrz_steam = -np.random.randint(0, 2, num_bits)*2 + 1
 BER = []
@@ -42,11 +41,10 @@ for ebno_db in ebnos_db:
     filtered = np.convolve(rx_signal[:2000]**2, firwin(21, cutoff=f_c*35/1e6, fs=fs_rx), "same")
     coarse_offset = coarse_correction(filtered, fs_rx)
     frequency_corrected = rx_signal*np.exp(-1j*2*np.pi*coarse_offset*np.arange(len(rx_signal))/fs_rx)
-    # frequency_corrected = rx_signal
-    filtered_corrected = np.convolve(frequency_corrected, np.flip(rrc), "same")
-    delay_estimate, timing_error_estimates = timing_recover(filtered_corrected, oversample)
+    delay_estimate, timing_error_estimates = timing_recover(frequency_corrected, oversample)
     timing_correction = delay_filter(-timing_error)
-    timed_corrected = np.convolve(filtered_corrected, timing_correction, "same")
+    timed_corrected = np.convolve(frequency_corrected, timing_correction, "same")
+    filtered_corrected = np.convolve(timed_corrected, np.flip(rrc), "same")
     timed_corrected = timed_corrected[0::oversample]
     # Might want to only do this on timing synched
     fine_corrected, fine_freq, fine_phase = fine_tracking(timed_corrected, oversample, fs_rx)
@@ -58,7 +56,7 @@ for ebno_db in ebnos_db:
     detected_nrz = -1*np.logical_not(fine_corrected > 0) + 1*(fine_corrected > 0)
     error_rate_flipped = np.sum(detected_nrz != nrz_steam)/num_bits
     print(f"Realtime flipped: {error_rate_flipped}")
-    error_plotting = True
+    error_plotting = False
     if error_plotting:
         plt.figure()
         plt.title(f"Realtime corrected BER: {error_rate}")
