@@ -71,6 +71,7 @@ for ppm in ppms:
             plt.xlabel("Symbol Period")
             fig_name = f"ebno_{ebno_db}_dop_{ppm_error}_phase_convergence"
             plt.savefig("../results/"+fig_name+".png")
+            plt.close('all')
         # Below there are two streams running, there might be other ways to disambiguate BPSK
         # without pilot symbols but didn't have time to investigate. This feels a little like cheating for now.
         BER.append(np.min((error_rate, error_rate_flipped)))
