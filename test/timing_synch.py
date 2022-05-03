@@ -25,9 +25,7 @@ for ebno_db in ebnos_db:
     # Use random doppler in ppm tolerance range
     ppm_error = np.random.uniform(-30, 30)/1e6
     doppler = f_c*ppm_error
-    # timing_error = np.random.uniform(-oversample//2, oversample//2)
-    timing_error = -.75
-    # timing_error = 0
+    timing_error = np.random.uniform(-oversample//2, oversample//2)
     phase_offset = np.random.uniform(-np.pi, np.pi)
     # Allowed to assume timing is preserved througout.
     rx_signal[0::oversample] = nrz_steam

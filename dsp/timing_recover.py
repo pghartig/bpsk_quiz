@@ -33,9 +33,9 @@ def timing_recover(signal_chunk, oversample):
             delayed_samples = get_delayed_samples(samples_mult, -delay_estimate)
             left_samples = np.sum(delayed_samples[:3])
             right_samples = np.sum(delayed_samples[4:])
-            error = np.sum(np.conjugate(right_samples))-np.sum(np.conjugate(left_samples))
+            error = np.conjugate(np.sum(right_samples)-np.sum(left_samples))
             check.append(error)
             error *= signal_chunk[sample_idx]
             delay_estimate += timing_step*error.real
             estimates.append(delay_estimate)
-    return delay_estimate, np.asarray(estimates)
+    return delay_estimate.real, np.asarray(estimates)
