@@ -11,7 +11,7 @@ alpha = .35
 Ts = 1/1e6
 fs_rx = 4e6
 f_c = 2e9
-ebnos_db = np.linspace(0, 10, 8)
+ebnos_db = np.linspace(0, 10, 5)
 oversample = 4
 nrz_steam = -np.random.randint(0, 2, num_bits)*2 + 1
 rrc = rrcosfilter(4, alpha, Ts, fs_rx)[1][1:]
@@ -74,6 +74,13 @@ for ppm in ppms:
             plt.ylabel("Radian")
             plt.xlabel("Symbol Period")
             fig_name = f"ebno_{ebno_db}_dop_{ppm_error}_phase_convergence"
+            plt.savefig("../results/"+fig_name+".png")
+            plt.figure()
+            plt.title(f"Timing Estimate Error: {delay_estimate - timing_error}")
+            plt.plot(timing_error_estimates - timing_error)
+            plt.ylabel("samples")
+            plt.xlabel("Symbol Period")
+            fig_name = f"ebno_{int(ebno_db)}_dop_{ppm_error}_timing_convergence"
             plt.savefig("../results/"+fig_name+".png")
             plt.close('all')
         # Below there are two streams running, there might be other ways to disambiguate BPSK
